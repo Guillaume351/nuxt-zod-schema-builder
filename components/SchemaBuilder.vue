@@ -27,7 +27,13 @@
       <div>
         <h2 class="text-xl font-semibold mb-2">Autoform</h2>
         <Card>
-          <AutoForm style="space-y-6" :schema="builder.rawSchema()" />
+          <AutoForm
+            style="space-y-6"
+            :schema="builder.rawSchema()"
+            @submit="testValidation"
+          >
+            <Button type="submit">Test validation</Button>
+          </AutoForm>
         </Card>
       </div>
     </div>
@@ -43,7 +49,7 @@ import {
 import AutoForm from "./ui/auto-form/AutoForm.vue";
 import { schemaToCodeString } from "~/lib/utils/ZodSchemaToCode";
 import { z } from "zod";
-import { DependencyType } from "./ui/auto-form/interface";
+import { DependencyType, type Dependency } from "./ui/auto-form/interface";
 
 const builder = reactive(new DynamicSchemaBuilder());
 
@@ -58,8 +64,8 @@ const newFieldSchema = z.object({
     "object",
     "enum",
   ]),
-  min: z.number().optional(),
-  max: z.number().optional(),
+  min: z.coerce.number().optional(),
+  max: z.coerce.number().optional(),
   required: z.boolean().optional(),
   description: z.string().optional(),
   // values for enum
@@ -87,9 +93,7 @@ const newFieldDependencies = [
     when: (sourceFieldValue: any) =>
       sourceFieldValue !== "number" && sourceFieldValue !== "string",
   },
-];
-
-const schemaFields = ref<SchemaField[]>([]);
+] as Dependency<z.infer<typeof newFieldSchema>>[];
 
 const addField = (data: any) => {
   if (data.name && data.type) {
@@ -105,4 +109,10 @@ const schemaPreview = computed(() => {
 
   return generatedCode;
 });
+
+const testValidation = (data: any) => {
+  // Show a popup with the validation result
+  console.log(data);
+  console.log("for info, raw schema is", builder.rawSchema());
+};
 </script>
