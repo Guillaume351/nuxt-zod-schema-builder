@@ -4,7 +4,12 @@
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
       <div>
         <h2 class="text-xl font-semibold mb-2">Add Field</h2>
-        <AutoForm style="space-y-6" :schema="newFieldSchema" @submit="addField">
+        <AutoForm
+          style="space-y-6"
+          :schema="newFieldSchema"
+          @submit="addField"
+          :dependencies="newFieldDependencies"
+        >
           <Button type="submit">Add Field</Button>
         </AutoForm>
       </div>
@@ -38,6 +43,7 @@ import {
 import AutoForm from "./ui/auto-form/AutoForm.vue";
 import { schemaToCodeString } from "~/lib/utils/ZodSchemaToCode";
 import { z } from "zod";
+import { DependencyType } from "./ui/auto-form/interface";
 
 const builder = reactive(new DynamicSchemaBuilder());
 
@@ -54,7 +60,18 @@ const newFieldSchema = z.object({
   ]),
   required: z.boolean().optional(),
   description: z.string().optional(),
+  // values for enum
+  values: z.string().array().optional(),
 });
+
+const newFieldDependencies = [
+  {
+    sourceField: "type",
+    type: DependencyType.HIDES,
+    targetField: "values",
+    when: (sourceFieldValue: any) => sourceFieldValue !== "enum",
+  },
+];
 
 const schemaFields = ref<SchemaField[]>([]);
 
