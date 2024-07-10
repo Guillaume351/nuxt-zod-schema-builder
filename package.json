@@ -12,6 +12,7 @@
   "dependencies": {
     "@vee-validate/zod": "^4.13.2",
     "@vueuse/core": "^10.11.0",
+    "@wdns/vue-code-block": "^2.3.3",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
     "lucide-vue-next": "^0.407.0",

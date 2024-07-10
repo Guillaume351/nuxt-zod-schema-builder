@@ -14,11 +14,7 @@
                 <SelectValue placeholder="Select field type" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem
-                  v-for="type in fieldTypes"
-                  :key="type"
-                  :value="type"
-                >
+                <SelectItem v-for="type in fieldTypes" :key="type" :value="type">
                   {{ type }}
                 </SelectItem>
               </SelectContent>
@@ -31,9 +27,8 @@
       <div>
         <h2 class="text-xl font-semibold mb-2">Current Schema</h2>
         <Card>
-          <pre><code>{{ schemaPreview }}</code></pre>
+          <VCodeBlock :code="schemaPreview" highlightjs language="typescript" theme="default" />
         </Card>
-        <Button @click="copySchema" class="mt-2">Copy Schema</Button>
       </div>
       <div>
         <h2 class="text-xl font-semibold mb-2">Autoform</h2>
@@ -52,6 +47,7 @@ import {
   type SchemaField,
 } from "~/lib/utils/DynamicSchemaBuilder";
 import AutoForm from "./ui/auto-form/AutoForm.vue";
+import { schemaToCodeString } from "~/lib/utils/ZodSchemaToCode";
 
 const builder = reactive(new DynamicSchemaBuilder());
 
@@ -59,6 +55,7 @@ const newField = ref<Partial<SchemaField>>({
   name: "",
   type: "string",
 });
+
 
 const fieldTypes = [
   "string",
@@ -83,11 +80,9 @@ const addField = () => {
 
 const schemaPreview = computed(() => {
   const { formSchema } = builder.build();
-  return JSON.stringify(formSchema.shape, null, 2);
+  const generatedCode = schemaToCodeString(formSchema);
+
+  return (generatedCode);
 });
 
-const copySchema = () => {
-  navigator.clipboard.writeText(schemaPreview.value);
-  // You might want to add a toast notification here
-};
 </script>
