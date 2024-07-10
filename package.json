@@ -37,6 +37,11 @@
     "vitest": "^1.6.0"
   },
   "overrides": {
-    "vue": "latest"
+    "vue": "latest",
+    "@vue/test-utils": "^2.4.6",
+    "happy-dom": "^14.12.3",
+    "playwright-core": "^1.45.1",
+    "typescript": "^5.5.3",
+    "vitest": "^1.6.0"
   }
 }
