@@ -58,6 +58,8 @@ const newFieldSchema = z.object({
     "object",
     "enum",
   ]),
+  min: z.number().optional(),
+  max: z.number().optional(),
   required: z.boolean().optional(),
   description: z.string().optional(),
   // values for enum
@@ -70,6 +72,20 @@ const newFieldDependencies = [
     type: DependencyType.HIDES,
     targetField: "values",
     when: (sourceFieldValue: any) => sourceFieldValue !== "enum",
+  },
+  {
+    sourceField: "type",
+    type: DependencyType.HIDES,
+    targetField: "min",
+    when: (sourceFieldValue: any) =>
+      sourceFieldValue !== "number" && sourceFieldValue !== "string",
+  },
+  {
+    sourceField: "type",
+    type: DependencyType.HIDES,
+    targetField: "max",
+    when: (sourceFieldValue: any) =>
+      sourceFieldValue !== "number" && sourceFieldValue !== "string",
   },
 ];
 

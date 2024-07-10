@@ -127,10 +127,27 @@ function generateCode(path: string, schema: z.ZodTypeAny): string {
   }
 
   // For simple types like ZodString, ZodNumber, etc., return their Zod schema equivalents
-  if (schema instanceof z.ZodString)
-    return addDescription(schema, "z.string()");
-  if (schema instanceof z.ZodNumber)
-    return addDescription(schema, "z.number()");
+  if (schema instanceof z.ZodString) {
+    let code = "z.string()";
+    if (schema.minLength !== null) {
+      code += `.min(${schema.minLength})`;
+    }
+    if (schema.maxLength !== null) {
+      code += `.max(${schema.maxLength})`;
+    }
+    return addDescription(schema, code);
+  }
+
+  if (schema instanceof z.ZodNumber) {
+    let code = "z.number()";
+    if (schema.minValue !== null) {
+      code += `.min(${schema.minValue})`;
+    }
+    if (schema.maxValue !== null) {
+      code += `.max(${schema.maxValue})`;
+    }
+    return addDescription(schema, code);
+  }
   if (schema instanceof z.ZodBoolean)
     return addDescription(schema, "z.boolean()");
   if (schema instanceof z.ZodDate) return addDescription(schema, "z.date()");
