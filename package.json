@@ -38,6 +38,6 @@
     "vitest": "^1.6.0"
   },
   "overrides": {
-    "vue": "latest",
+    "vue": "latest"
   }
 }
