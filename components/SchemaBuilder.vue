@@ -27,7 +27,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, reactive } from "vue";
+import { computed } from "vue";
 import {
   type SchemaField,
 } from "~/composables/useDynamicSchemaBuilder";
@@ -97,6 +97,6 @@ const schemaPreview = computed(() => {
 const testValidation = (data: any) => {
   // Show a popup with the validation result
   console.log(data);
-  console.log("for info, raw schema is", builder.rawSchema());
+  console.log("for info, raw schema is", schemaStore.rawSchema());
 };
 </script>
