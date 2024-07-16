@@ -77,12 +77,12 @@ interface Dependency {
   when: (value: any) => boolean;
 }
 
-class DynamicSchemaBuilder {
-  private schema: Record<string, z.ZodTypeAny> = {};
-  private fieldConfig: Record<string, FieldConfig> = {};
-  private dependencies: Dependency[] = [];
+export function useSchemaBuilder() {
+  const schema = reactive<Record<string, z.ZodTypeAny>>({});
+  const fieldConfig = reactive<Record<string, FieldConfig>>({});
+  const dependencies = ref<Dependency[]>([]);
 
-  addField(field: SchemaField, config?: FieldConfig): DynamicSchemaBuilder {
+  function addField(field: SchemaField, config?: FieldConfig) {
     let zodType: z.ZodTypeAny;
 
     switch (field.type) {
@@ -151,39 +151,40 @@ class DynamicSchemaBuilder {
       zodType = zodType.optional();
     }
 
-    this.schema[field.name] = zodType;
+    schema[field.name] = zodType;
 
     if (config) {
-      this.fieldConfig[field.name] = config;
+      fieldConfig[field.name] = config;
     }
-
-    return this;
   }
 
-  addDependency(dependency: Dependency): DynamicSchemaBuilder {
-    this.dependencies.push(dependency);
-    return this;
+  function addDependency(dependency: Dependency) {
+    dependencies.value.push(dependency);
   }
 
-  private createZodType(field: SchemaField): z.ZodTypeAny {
-    return this.addField(field).schema[field.name];
+  function createZodType(field: SchemaField): z.ZodTypeAny {
+    addField(field);
+    return schema[field.name];
   }
 
-  rawSchema(): z.ZodObject<any> {
-    return z.object(this.schema);
+  function rawSchema() {
+    return z.object(schema);
   }
 
-  build(): {
-    formSchema: z.ZodObject<any>;
-    fieldConfig: Record<string, FieldConfig>;
-    dependencies: Dependency[];
-  } {
+  function build() {
     return {
-      formSchema: z.object(this.schema),
-      fieldConfig: this.fieldConfig,
-      dependencies: this.dependencies,
+      formSchema: z.object(schema),
+      fieldConfig: fieldConfig,
+      dependencies: dependencies.value,
     };
   }
+
+  return {
+    addField,
+    addDependency,
+    rawSchema,
+    build,
+  };
 }
 
 export {

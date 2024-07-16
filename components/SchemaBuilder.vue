@@ -4,34 +4,20 @@
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
       <div>
         <h2 class="text-xl font-semibold mb-2">Add Field</h2>
-        <AutoForm
-          style="space-y-6"
-          :schema="newFieldSchema"
-          @submit="addField"
-          :dependencies="newFieldDependencies"
-        >
+        <AutoForm style="space-y-6" :schema="newFieldSchema" @submit="addField" :dependencies="newFieldDependencies">
           <Button type="submit">Add Field</Button>
         </AutoForm>
       </div>
       <div>
         <h2 class="text-xl font-semibold mb-2">Current Schema</h2>
         <Card>
-          <VCodeBlock
-            :code="schemaPreview"
-            highlightjs
-            language="typescript"
-            theme="default"
-          />
+          <VCodeBlock :code="schemaPreview" highlightjs language="typescript" theme="default" />
         </Card>
       </div>
       <div>
         <h2 class="text-xl font-semibold mb-2">Autoform</h2>
         <Card>
-          <AutoForm
-            style="space-y-6"
-            :schema="builder.rawSchema()"
-            @submit="testValidation"
-          >
+          <AutoForm style="space-y-6" :schema="schemaStore.rawSchema()" @submit="testValidation">
             <Button type="submit">Test validation</Button>
           </AutoForm>
         </Card>
@@ -41,17 +27,18 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, reactive } from "vue";
+import { computed, reactive } from "vue";
 import {
-  DynamicSchemaBuilder,
   type SchemaField,
-} from "~/lib/utils/DynamicSchemaBuilder";
+} from "~/composables/useDynamicSchemaBuilder";
 import AutoForm from "./ui/auto-form/AutoForm.vue";
-import { schemaToCodeString } from "~/lib/utils/ZodSchemaToCode";
+import { schemaToCodeString } from "~/composables/useZodSchemaToCode";
 import { z } from "zod";
 import { DependencyType, type Dependency } from "./ui/auto-form/interface";
+import { useSchemaStore } from "~/composables/stores/schemaStore";
 
-const builder = reactive(new DynamicSchemaBuilder());
+const schemaStore = useSchemaStore();
+
 
 const newFieldSchema = z.object({
   name: z.string().min(1),
@@ -98,16 +85,13 @@ const newFieldDependencies = [
 const addField = (data: any) => {
   if (data.name && data.type) {
     const field = { ...data } as SchemaField;
-
-    builder.addField(field);
+    schemaStore.addField(field);
   }
 };
 
 const schemaPreview = computed(() => {
-  const { formSchema } = builder.build();
-  const generatedCode = schemaToCodeString(formSchema);
-
-  return generatedCode;
+  const { formSchema } = schemaStore.build();
+  return schemaToCodeString(formSchema);
 });
 
 const testValidation = (data: any) => {
