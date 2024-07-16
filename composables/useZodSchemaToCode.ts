@@ -31,7 +31,7 @@ function generateCode(schema: z.ZodTypeAny, isRoot: boolean): string {
     code = `z.array(${generateCode(itemsSchema, false)})`;
   } else if (schema instanceof z.ZodUnion) {
     const options = schema._def.options.map((option: any) =>
-      generateCode(option, false),
+      generateCode(option, false)
     );
     code = `z.union([${options.join(", ")}])`;
   } else if (schema instanceof z.ZodLiteral) {
@@ -58,16 +58,19 @@ function generateCode(schema: z.ZodTypeAny, isRoot: boolean): string {
   } else if (schema instanceof z.ZodNativeEnum) {
     code = `z.nativeEnum(${JSON.stringify(schema._def.values)})`;
   } else if (schema instanceof z.ZodDiscriminatedUnion) {
-    const options = Array.from(schema._def.options.values()).map(
-      (option: any) => generateCode(option, false),
+    const { discriminator, options } = schema._def;
+    const optionsCode = options.map((option: any) =>
+      generateCode(option, false)
     );
-    code = `z.discriminatedUnion("${schema._def.discriminator}", [${options.join(", ")}])`;
+    code = `z.discriminatedUnion("${discriminator}", [${optionsCode.join(
+      ", "
+    )}])`;
   } else if (schema instanceof z.ZodRecord) {
     const valueSchema = schema._def.valueType;
     code = `z.record(${generateCode(valueSchema, false)})`;
   } else if (schema instanceof z.ZodTuple) {
     const items = schema._def.items.map((item: any) =>
-      generateCode(item, false),
+      generateCode(item, false)
     );
     code = `z.tuple([${items.join(", ")}])`;
   } else if (schema instanceof z.ZodLazy) {
@@ -76,24 +79,24 @@ function generateCode(schema: z.ZodTypeAny, isRoot: boolean): string {
   } else if (schema instanceof z.ZodString) {
     code = "z.string()";
     if (schema._def.checks) {
-      schema._def.checks.forEach((check: any) => {
+      for (const check of schema._def.checks) {
         if (check.kind === "min") {
           code += `.min(${check.value})`;
         } else if (check.kind === "max") {
           code += `.max(${check.value})`;
         }
-      });
+      }
     }
   } else if (schema instanceof z.ZodNumber) {
     code = "z.number()";
     if (schema._def.checks) {
-      schema._def.checks.forEach((check: any) => {
+      for (const check of schema._def.checks) {
         if (check.kind === "min") {
           code += `.min(${check.value})`;
         } else if (check.kind === "max") {
           code += `.max(${check.value})`;
         }
-      });
+      }
     }
   } else if (schema instanceof z.ZodBoolean) {
     code = "z.boolean()";
@@ -115,9 +118,15 @@ function generateCode(schema: z.ZodTypeAny, isRoot: boolean): string {
     code = "z.unknown()"; // Fallback for unsupported types
   }
 
-  // Add description if present
-  if (schema._def.description) {
-    code += `.describe(${JSON.stringify(schema._def.description)})`;
+  // Add description if present and not already added
+  if (isRoot && schema.description) {
+    code += `.describe(${JSON.stringify(schema.description)})`;
+  } else if (
+    !isRoot &&
+    schema.description &&
+    !code.includes(`.describe(${JSON.stringify(schema.description)})`)
+  ) {
+    code += `.describe(${JSON.stringify(schema.description)})`;
   }
 
   return code;
