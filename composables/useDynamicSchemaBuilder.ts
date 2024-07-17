@@ -68,9 +68,9 @@ interface FieldConfig {
   fieldType?: string;
 }
 
-type DependencyType = "HIDES" | "SHOWS" | "ENABLES" | "DISABLES";
+export type DependencyType = "HIDES" | "SHOWS" | "ENABLES" | "DISABLES";
 
-interface Dependency {
+export interface Dependency {
   sourceField: string;
   type: DependencyType;
   targetField: string;
