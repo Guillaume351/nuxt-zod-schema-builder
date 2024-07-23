@@ -82,7 +82,7 @@ export function useSchemaBuilder() {
   const fieldConfig = reactive<Record<string, FieldConfig>>({});
   const dependencies = ref<Dependency[]>([]);
   const fieldDetails = reactive<Record<string, SchemaField>>({});
-  const editingField = ref<string | null>(null);
+  const editingField: Ref<string | null> = ref<string | null>(null);
 
   function addField(field: SchemaField, config?: FieldConfig) {
     let zodType: z.ZodTypeAny;
@@ -161,12 +161,15 @@ export function useSchemaBuilder() {
   }
 
   function editField(name: string, updatedField: SchemaField) {
-    addField(updatedField);
-    // Update the schema with the edited field
-    schema[name] = schema[updatedField.name];
-    delete schema[updatedField.name];
+    // Remove the old field
+    delete schema[name];
 
+    // Add the updated field
+    addField(updatedField);
+
+    // Update fieldDetails
     fieldDetails[name] = updatedField;
+
     editingField.value = null;
   }
 
