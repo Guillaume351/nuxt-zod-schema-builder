@@ -8,6 +8,12 @@ export default defineVitestConfig({
     coverage: {
       provider: "v8",
       reporter: ["text", "html"],
+      exclude: [
+        "components/ui/**",
+        ".nuxt/**",
+        "**/*.config.ts",
+        "**/*.config.js",
+      ],
     },
   },
 });
