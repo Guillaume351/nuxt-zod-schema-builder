@@ -5,14 +5,19 @@ import { ref } from "vue";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { setActivePinia, createPinia } from "pinia";
 
+vi.mock("~/composables/stores/schemaStore", () => ({
+  useSchemaStore: vi.fn(),
+}));
+
 beforeEach(() => {
   setActivePinia(createPinia());
 });
 
 describe("EditFieldModal.vue", () => {
   it("should set the editing field on startEdit", async () => {
-    const store = {
-      editingField: ref(null),
+    const editingField = ref(null);
+    const mockStore = {
+      editingField,
       fieldDetails: {
         testField: {
           name: "testField",
@@ -21,30 +26,30 @@ describe("EditFieldModal.vue", () => {
         },
       },
     };
-    vi.stubGlobal("useSchemaStore", () => store);
+    vi.mocked(useSchemaStore).mockReturnValue(mockStore as any);
 
     const wrapper = mount(EditFieldModal, {
       props: { fieldName: "testField" },
       global: {
         stubs: {
-          Dialog: {
-            template: "<div><slot></slot></div>",
-          },
+          Dialog: true,
           DialogTrigger: {
-            template: `<button @click="$emit('click')"></button>`,
+            template: "<div><slot /></div>",
           },
           DialogContent: true,
-          AutoForm: {
-            template: `<form @submit.prevent="$emit('submit', { name: 'testField', type: 'string', min: 1 })"></form>`,
-          },
-          Button: true,
+          AutoForm: true,
           DialogFooter: true,
           DialogClose: true,
+          Button: true,
         },
       },
     });
 
-    await wrapper.find("button").trigger("click");
-    expect(store.editingField.value).toBe("testField");
+    const button = wrapper.find('[data-testid="edit-field-button"]');
+
+    expect(button.exists()).toBe(true);
+
+    await button.trigger("click");
+    expect(editingField.value).toBe("testField");
   });
 });

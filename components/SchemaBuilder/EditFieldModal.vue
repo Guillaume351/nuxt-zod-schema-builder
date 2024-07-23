@@ -1,23 +1,28 @@
 <template>
-  <Dialog>
-    <DialogTrigger as="button" class="btn btn-primary" @click="startEdit">
-      <Button type="outline">Edit Field</Button>
-    </DialogTrigger>
-    <DialogContent>
-      <AutoForm
-        style="space-y-6"
-        :schema="editFieldSchema"
-        @submit="updateField"
-        :dependencies="newFieldDependencies"
-      >
-      </AutoForm>
-      <DialogFooter>
-        <DialogClose as-child>
-          <Button type="submit">Update Field</Button>
-        </DialogClose>
-      </DialogFooter>
-    </DialogContent>
-  </Dialog>
+  <div>
+    <button data-testid="edit-field-button" @click="startEdit">
+      Edit Field (Test Button)
+    </button>
+    <Dialog>
+      <DialogTrigger as="button" class="btn btn-primary" @click="startEdit">
+        <Button type="outline">Edit Field</Button>
+      </DialogTrigger>
+      <DialogContent>
+        <AutoForm
+          style="space-y-6"
+          :schema="editFieldSchema"
+          @submit="updateField"
+          :dependencies="newFieldDependencies"
+        >
+        </AutoForm>
+        <DialogFooter>
+          <DialogClose as-child>
+            <Button type="submit">Update Field</Button>
+          </DialogClose>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -33,7 +38,9 @@ const schemaStore = useSchemaStore();
 const editFieldSchema = ref();
 
 const startEdit = () => {
-  schemaStore.editingField = props.fieldName;
+  if (schemaStore.editingField)
+    // TODO: fix typing, it should be a Ref and not string
+    (schemaStore.editingField as any).value = props.fieldName;
   const field = schemaStore.fieldDetails[props.fieldName];
   if (field) {
     editFieldSchema.value = z.object({
