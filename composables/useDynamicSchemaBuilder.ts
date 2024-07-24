@@ -163,12 +163,14 @@ export function useSchemaBuilder() {
   function editField(name: string, updatedField: SchemaField) {
     // Remove the old field
     delete schema[name];
+    delete fieldConfig[name];
+    delete fieldDetails[name];
 
     // Add the updated field
     addField(updatedField);
 
     // Update fieldDetails
-    fieldDetails[name] = updatedField;
+    fieldDetails[updatedField.name] = updatedField;
 
     editingField.value = null;
   }
