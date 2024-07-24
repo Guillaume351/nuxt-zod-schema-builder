@@ -14,12 +14,10 @@
           @submit="updateField"
           :dependencies="newFieldDependencies"
         >
-        </AutoForm>
-        <DialogFooter>
           <DialogClose as-child>
             <Button type="submit">Update Field</Button>
           </DialogClose>
-        </DialogFooter>
+        </AutoForm>
       </DialogContent>
     </Dialog>
   </div>
