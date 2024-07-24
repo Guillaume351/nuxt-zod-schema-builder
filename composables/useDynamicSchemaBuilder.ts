@@ -68,9 +68,9 @@ interface FieldConfig {
   fieldType?: string;
 }
 
-type DependencyType = "HIDES" | "SHOWS" | "ENABLES" | "DISABLES";
+export type DependencyType = "HIDES" | "SHOWS" | "ENABLES" | "DISABLES";
 
-interface Dependency {
+export interface Dependency {
   sourceField: string;
   type: DependencyType;
   targetField: string;
@@ -81,6 +81,8 @@ export function useSchemaBuilder() {
   const schema = reactive<Record<string, z.ZodTypeAny>>({});
   const fieldConfig = reactive<Record<string, FieldConfig>>({});
   const dependencies = ref<Dependency[]>([]);
+  const fieldDetails = reactive<Record<string, SchemaField>>({});
+  const editingField: Ref<string | null> = ref<string | null>(null);
 
   function addField(field: SchemaField, config?: FieldConfig) {
     let zodType: z.ZodTypeAny;
@@ -90,7 +92,6 @@ export function useSchemaBuilder() {
         zodType = z.string({
           required_error: `${field.name} is required.`,
         });
-        // TODO: improve ZodTypeAny to allow for min and max length
         if (field.min)
           zodType = zodType.min(field.min, {
             message: `${field.name} must be at least ${field.min} characters.`,
@@ -152,10 +153,26 @@ export function useSchemaBuilder() {
     }
 
     schema[field.name] = zodType;
+    fieldDetails[field.name] = field;
 
     if (config) {
       fieldConfig[field.name] = config;
     }
+  }
+
+  function editField(name: string, updatedField: SchemaField) {
+    // Remove the old field
+    delete schema[name];
+    delete fieldConfig[name];
+    delete fieldDetails[name];
+
+    // Add the updated field
+    addField(updatedField);
+
+    // Update fieldDetails
+    fieldDetails[updatedField.name] = updatedField;
+
+    editingField.value = null;
   }
 
   function addDependency(dependency: Dependency) {
@@ -181,9 +198,12 @@ export function useSchemaBuilder() {
 
   return {
     addField,
+    editField,
     addDependency,
     rawSchema,
     build,
+    fieldDetails,
+    editingField,
   };
 }
 
